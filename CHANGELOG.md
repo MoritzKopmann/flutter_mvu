@@ -18,3 +18,6 @@ more documentation
 
 ## 1.0.6
 improve naming
+
+## 1.1.0
+replace outEvents with global Events

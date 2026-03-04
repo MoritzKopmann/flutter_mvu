@@ -13,6 +13,4 @@ class BroadcastStream<T> {
   }
 }
 
-class EventStream<T> extends BroadcastStream<Event<T>> {}
-
-class OutEventStream<T> extends BroadcastStream<OutEvent<T>> {}
+class ModelEventStream<T> extends BroadcastStream<Event<T>> {}

@@ -58,7 +58,6 @@ class ModelController<T extends Object> {
 
   T get model;
   Stream<T> get stream;
-  Stream<OutEvent<T>> get outEventStream;
 
   void triggerEvent(Event<T> event);
   void notifyListeners();
@@ -73,10 +72,9 @@ class ModelController<T extends Object> {
 - **Properties**:
   - `model`: the current state instance.
   - `stream`: a broadcast stream of state snapshots.
-  - `outEventStream`: a broadcast stream of `OutEvent<T>` for parent-child communication.
 
 - **Methods**:
-  - `triggerEvent(event)`: enqueue an `Event<T>` for processing.
+  - `triggerEvent(event)`: enqueue an `Event<T>` for processing within the module.
   - `notifyListeners()`: manually emit the current model into `stream`.
   - `dispose()`: close all internal streams and free resources.
 
@@ -90,47 +88,38 @@ abstract class Event<T> {
   void updateModel(
     T model,
     void Function(Event<T>) triggerEvent,
-    void Function(OutEvent<T>) triggerOutEvent,
+    void Function(GlobalEvent) triggerGlobalEvent,
   );
 }
 ```
 
 - Implement `Event<T>` and override `updateModel` to update the model.
-- Use `triggerEvent` to chain further events.
-- Use `triggerOutEvent` to bubble messages to parent models.
+- Use `triggerEvent` to chain further events within your module.
+- Use `triggerGlobalEvent` to trigger events readable by every module.
 - Add attributes to the Event, which are being set by the constructor, to create parameterized events 
 
 ---
 
-### 🔸 OutEvent<T>
-Marker for bubbling child → parent messages.
+### 🔸 GlobalEvent<T>
+Type for events that are communicated to every module
 
 ```dart
-abstract class OutEvent<T> {}
+abstract class GlobalEvent {}
 ```
 
-Emit via `triggerOutEvent(...)` inside `updateModel`.
+Emit via `triggerGlobalEvent(...)` inside `updateModel`.
 
-#### Parent-Child Wiring Example
-```dart
-class ParentModel { /*…*/ }
-class ChildModel  { /*…*/ }
-
-final childCtrl = ModelController(ChildModel());
-final parentCtrl = ModelController(ParentModel());
-
-// In parent’s setup logic:
-childCtrl.outEventStream.listen((out) {
-  parentCtrl.triggerEvent(ChildDidSomething(out.info));
-});
-```
+To consume implement the abstract class
 
 ```dart
-class ChildDidSomething extends OutEvent<MyChildModel> {
-  final String info;
-  ChildDidSomething(this.info);
+abstract class GlobalEventConsumer<T> {
+  void processGlobalEvent(
+      GlobalEvent globalEvent, Function(Event<T> event) triggerEvent);
 }
 ```
+
+and pass it to the ModelController.
+
 
 ---
 
@@ -314,34 +303,5 @@ class FetchDataEvent implements Event<DataModel> {
 ```
 
 ---
-
-
-## 🧪 Testing 🧪
-
-For unit and widget tests, add the `flutter_mvu_test` package to your dev dependencies:
-
-```yaml
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_mvu_test: ^1.0.1
-```
-
-Then import in your test files:
-
-```dart
-import 'package:flutter_mvu_test/flutter_mvu_test.dart';
-```
-
-Use `TestModelController<T>` to synchronously dispatch events and assert on both model state, `Event<T>` and `OutEvent<T>` emissions. 
-
-See **flutter_mvu_test** [![flutter_mvu_test pub version](https://img.shields.io/pub/v/flutter_mvu_test.svg)](https://pub.dev/packages/flutter_mvu_test)
-
-
-## 🎓 Tips & Next Steps
-
-- **Dispose wisely**: Auto-managed providers handle it for you; for self-managed, call `dispose()` when appropriate.
-- **OutEvents**: Implement to communicate child→parent updates in nested models.
-- **Debug logs**: In debug builds, events are printed automatically for easy tracing.
 
 Happy MVU‑ing! 🚀🎨✨

@@ -8,9 +8,9 @@ abstract class Event<T> {
   void updateModel(
     T model,
     Function(Event<T> event) triggerEvent,
-    Function(OutEvent<T> outEvent) triggerOutEvent,
+    Function(GlobalEvent globalEvent) triggerGlobalEvent,
   );
 }
 
-/// Represents a message from the model to a parent model, about events insife the model
-abstract class OutEvent<T> {}
+/// Represents a message from a module to a global event queue, to message anyone interested
+abstract class GlobalEvent {}

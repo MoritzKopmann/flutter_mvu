@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mvu/flutter_mvu.dart';
+import 'package:flutter_mvu/src/global_event_consumer.dart';
 
 /// A widget that binds a [ModelController] to a [StateView], rebuilding
 /// whenever the model emits a new state. Supports two construction modes:
@@ -19,9 +20,12 @@ class ModelProvider<T extends Object> extends StatefulWidget {
     T model, {
     super.key,
     List<Event<T>> initialEvents = const [],
+    GlobalEventConsumer<T>? globalEventConsumer,
     required StateView<T> stateView,
   })  : _stateView = stateView,
-        _controller = ModelController<T>(model, initialEvents: initialEvents),
+        _controller = ModelController<T>(model,
+            initialEvents: initialEvents,
+            globalEventConsumer: globalEventConsumer),
         _autoDispose = true;
 
   /// Constructs a provider using an existing [controller].
