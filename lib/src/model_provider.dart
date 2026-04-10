@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mvu/flutter_mvu.dart';
+import 'package:flutter_mvu/src/event.dart';
 import 'package:flutter_mvu/src/global_event_consumer.dart';
+import 'package:flutter_mvu/src/model_controller.dart';
+import 'package:flutter_mvu/src/state_view.dart';
 
 /// A widget that binds a [ModelController] to a [StateView], rebuilding
 /// whenever the model emits a new state. Supports two construction modes:
