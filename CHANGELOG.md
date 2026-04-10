@@ -21,3 +21,6 @@ improve naming
 
 ## 1.1.0
 replace outEvents with global Events
+
+## 1.1.1
+fix imports
