@@ -19,7 +19,7 @@ A minimal Elm-inspired Model-View-Update (MVU) state management library for Flut
    ```
 3. **Import** into your Dart files:
    ```dart
-   import 'package:flutter_mvu/mvu.dart';
+   import 'package:flutter_mvu/flutter_mvu.dart';
    ```
 
 > **Compatibility**: Supports Dart ≥2.17 and Flutter ≥3.0 with full null-safety.
@@ -54,6 +54,7 @@ class ModelController<T extends Object> {
   ModelController(
     T model, {
     List<Event<T>> initialEvents = const [],
+    GlobalEventConsumer<T>? globalEventConsumer,
   });
 
   T get model;
@@ -68,6 +69,7 @@ class ModelController<T extends Object> {
 - **Constructor**:
   - `ModelController(model)` — no initial events.
   - `ModelController(model, initialEvents: [...])` — enqueues those right after initialization.
+  - `ModelController(model, globalEventConsumer: myConsumer)` — wires up a `GlobalEventConsumer` to react to global events.
 
 - **Properties**:
   - `model`: the current state instance.
@@ -100,7 +102,7 @@ abstract class Event<T> {
 
 ---
 
-### 🔸 GlobalEvent<T>
+### 🔸 GlobalEvent
 Type for events that are communicated to every module
 
 ```dart
@@ -300,6 +302,31 @@ class FetchDataEvent implements Event<DataModel> {
       .catchError((err) => triggerEvent(DataLoadFailedEvent(err.toString())));
   }
 }
+```
+
+---
+
+---
+
+## 🧪 Testing
+
+Use the companion package **[flutter_mvu_test](https://pub.dev/packages/flutter_mvu_test)** to unit-test your models and events. It provides `TestModelController`, which lets you dispatch events and `await` the resulting state in a single line:
+
+```dart
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_mvu_test: ^1.0.2
+```
+
+```dart
+test('increment updates count', () async {
+  final controller = TestModelController(CounterModel());
+
+  await controller.dispatch(IncrementEvent());
+
+  expect(controller.model.count, 1);
+});
 ```
 
 ---
