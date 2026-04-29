@@ -150,19 +150,25 @@ A `StatefulWidget` that binds a `ModelController<T>` to a `StateView<T>`.
   ModelProvider(
     MyModel(),            // your raw model
     stateView: MyView(),  // your StateView implementation
-    initialEvents: [],    // optional list of initial events to be triggered after model initialization
+    initialEvents: [],    // optional events triggered after model initialization (controller lifecycle)
+    mountEvents: [],      // optional events triggered when the widget mounts (initState)
+    unmountEvents: [],    // optional events triggered when the widget unmounts (dispose)
   )
   ```
   • Creates its own `ModelController` and **auto-disposes** it.
+  • `mountEvents` / `unmountEvents` are tied to the **view** lifecycle, while `initialEvents` is tied to the **controller** lifecycle.
 
 - **Self-managed** constructor:
   ```dart
   ModelProvider.controller(
     myController,        // existing ModelController
     stateView: MyView(),
+    mountEvents: [],     // optional events triggered when the widget mounts
+    unmountEvents: [],   // optional events triggered when the widget unmounts
   )
   ```
   • Uses your controller and **does not dispose** it; you manage lifecycle.
+  • Useful when a controller outlives the widget — `mountEvents` / `unmountEvents` then fire on every (un)mount, independently of `initialEvents` which only ran once at controller construction.
 
 ⚠️ **For self-managed controllers, remember to call `controller.dispose()` when you’re done to avoid memory leaks.**
 
@@ -258,7 +264,22 @@ Immediately, the counter starts at 2!
 
 ---
 
-### 4️⃣ Async Event Pattern ⏳
+### 4️⃣ Mount / Unmount Events 🌱🍂
+
+```dart
+final provider = ModelProvider(
+  CounterModel(),
+  stateView: CounterView(),
+  mountEvents: [LogViewOpenedEvent()],   // fires in initState
+  unmountEvents: [PersistStateEvent()],  // fires in dispose
+);
+```
+
+Use these to hook into the **view's** lifecycle — e.g. log analytics on open, persist state on close.
+
+---
+
+### 5️⃣ Async Event Pattern ⏳
 
 ```dart
 // 1️⃣ Model with loading/error state

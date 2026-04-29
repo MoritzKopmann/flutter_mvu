@@ -15,30 +15,47 @@ class ModelProvider<T extends Object> extends StatefulWidget {
   final ModelController<T> _controller;
   final StateView<T> _stateView;
   final bool _autoDispose;
+  final List<Event<T>> _mountEvents;
+  final List<Event<T>> _unmountEvents;
 
   /// Constructs a provider by creating a new [ModelController] for [model].
   /// The controller will be disposed automatically when this widget is removed.
+  ///
+  /// [mountEvents] are triggered when the widget mounts ([State.initState]).
+  /// [unmountEvents] are triggered when the widget unmounts ([State.dispose]),
+  /// before the controller is disposed.
   ModelProvider(
     T model, {
     super.key,
     List<Event<T>> initialEvents = const [],
+    List<Event<T>> mountEvents = const [],
+    List<Event<T>> unmountEvents = const [],
     GlobalEventConsumer<T>? globalEventConsumer,
     required StateView<T> stateView,
   })  : _stateView = stateView,
         _controller = ModelController<T>(model,
             initialEvents: initialEvents,
             globalEventConsumer: globalEventConsumer),
+        _mountEvents = mountEvents,
+        _unmountEvents = unmountEvents,
         _autoDispose = true;
 
   /// Constructs a provider using an existing [controller].
   /// In this mode, autoDispose is disabled, and you must dispose the controller
   /// yourself when it's no longer needed.
+  ///
+  /// [mountEvents] are triggered when the widget mounts ([State.initState]).
+  /// [unmountEvents] are triggered when the widget unmounts ([State.dispose]).
   const ModelProvider.controller(
     ModelController<T> controller, {
     super.key,
+    List<Event<T>> mountEvents = const [],
+    List<Event<T>> unmountEvents = const [],
     required StateView<T> stateView,
   })  : _stateView = stateView,
         _controller = controller,
+        _mountEvents = mountEvents,
+        _unmountEvents = unmountEvents,
         _autoDispose = false;
 
   @override
@@ -47,7 +64,18 @@ class ModelProvider<T extends Object> extends StatefulWidget {
 
 class _ModelProviderState<T extends Object> extends State<ModelProvider<T>> {
   @override
+  void initState() {
+    super.initState();
+    for (final event in widget._mountEvents) {
+      widget._controller.triggerEvent(event);
+    }
+  }
+
+  @override
   void dispose() {
+    for (final event in widget._unmountEvents) {
+      widget._controller.triggerEvent(event);
+    }
     if (widget._autoDispose) {
       widget._controller.dispose();
     }

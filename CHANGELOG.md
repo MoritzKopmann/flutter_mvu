@@ -1,3 +1,7 @@
+## 1.2.0
+- add `mountEvents` and `unmountEvents` parameters to `ModelProvider` for triggering events on view mount/unmount
+- README: document the new lifecycle parameters and add a usage example
+
 ## 1.1.2
 - README: fix import path (`mvu.dart` → `flutter_mvu.dart`)
 - README: document `globalEventConsumer` parameter on `ModelController`

@@ -1,6 +1,6 @@
 name: flutter_mvu
 description: A minimal Elm‑inspired Model‑View‑Update state management library for Flutter.
-version: 1.1.2
+version: 1.2.0
 homepage: https://github.com/MoritzKopmann/flutter_mvu
 repository: https://github.com/MoritzKopmann/flutter_mvu
 documentation: https://pub.dev/documentation/flutter_mvu/latest/
